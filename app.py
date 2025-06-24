@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import openai
+from openai import OpenAI
 import os
 from datetime import datetime
 import requests
@@ -10,7 +10,7 @@ from io import BytesIO
 st.title("Prompt Writing Quiz")
 
 # OpenAI API setup
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 MODEL = "gpt-4o-mini"
 
 # Load Excel file from GitHub
@@ -63,7 +63,7 @@ if name:
 
         if st.button("Submit"):
             for prompt in prompts:
-                quality_response = openai.ChatCompletion.create(
+                quality_response = client.chat.completions.create(
                     model=MODEL,
                     messages=[
                         {"role": "system", "content": "Score the clarity and usefulness of this prompt from 1 (poor) to 10 (excellent). Reply only with a number."},
@@ -75,7 +75,7 @@ if name:
                 quality_score = quality_response.choices[0].message.content.strip()
                 scores.append(quality_score)
 
-                llm_check_response = openai.ChatCompletion.create(
+                llm_check_response = client.chat.completions.create(
                     model=MODEL,
                     messages=[
                         {"role": "system", "content": "Is this likely written by AI or a human? Reply with 'AI' or 'Human'."},
