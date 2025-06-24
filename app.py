@@ -26,9 +26,9 @@ def load_excel():
         st.warning("Starting fresh: Excel file missing or invalid.")
         return pd.DataFrame(columns=[
             'Name', 'Date',
-            'Scenario 1 Prompt', 'Scenario 1 AI Assistance', 'Scenario 1 Score',
-            'Scenario 2 Prompt', 'Scenario 2 AI Assistance', 'Scenario 2 Score',
-            'Scenario 3 Prompt', 'Scenario 3 AI Assistance', 'Scenario 3 Score'
+            'Scenario 1 Prompt', 'Scenario 1 Score', 'Scenario 1 LLM Likelihood',
+            'Scenario 2 Prompt', 'Scenario 2 Score', 'Scenario 2 LLM Likelihood',
+            'Scenario 3 Prompt', 'Scenario 3 Score', 'Scenario 3 LLM Likelihood'
         ])
 
 # Save Excel file locally (manual upload needed for GitHub)
@@ -37,9 +37,9 @@ def save_to_excel(df):
 
 # Scenarios
 scenarios = [
-    "Write a prompt to generate creative ad concepts for a new tech gadget.",
-    "Write a prompt to conduct QA for an email marketing campaign dataset.",
-    "Write a prompt to create and validate SAS code for data analysis."
+    "Design a prompt that instructs an AI to generate email creatives for an EMOB (email marketing onboarding) campaign targeting new tech users.",
+    "Write a prompt for an AI to perform QA on a dataset used for email campaign segmentation and targeting.",
+    "Create a prompt that instructs an AI to write and validate SAS code for cleaning and analyzing campaign performance data."
 ]
 
 # Collect user name
@@ -52,50 +52,56 @@ if name:
         st.error("Duplicate entry not allowed.")
     else:
         prompts = []
-        ai_assistance = []
+        scores = []
+        llm_flags = []
 
         for idx, scenario in enumerate(scenarios, 1):
             st.subheader(f"Scenario {idx}")
             st.write(scenario)
-
             prompt = st.text_area(f"Enter your prompt for scenario {idx}:", key=f"prompt_{idx}")
-            ai_help = st.radio(f"Did you write this yourself or use an LLM?", ('Self-written', 'LLM-assisted'), key=f"ai_{idx}")
-
             prompts.append(prompt)
-            ai_assistance.append(ai_help)
 
         if st.button("Submit"):
-            scores = []
             for scenario, prompt in zip(scenarios, prompts):
-                response = openai.ChatCompletion.create(
+                quality_response = openai.ChatCompletion.create(
                     model=MODEL,
                     messages=[
-                        {"role": "system", "content": f"Rate the quality of the prompt on a scale of 1 (lowest) to 10 (highest), strictly based on clarity, specificity, and effectiveness for the following scenario: '{scenario}'. Only respond with the number."},
+                        {"role": "system", "content": f"Rate the quality of this prompt on a scale from 1 (poor) to 10 (excellent) for the task: '{scenario}'. Only respond with the number."},
                         {"role": "user", "content": prompt}
                     ],
                     max_tokens=1,
                     temperature=0
                 )
-                score = response.choices[0].message.content.strip()
-                scores.append(score)
+                quality_score = quality_response.choices[0].message.content.strip()
+                scores.append(quality_score)
 
-            # Display scores
-            for idx, score in enumerate(scores, 1):
-                st.write(f"Scenario {idx} Score: {score}/10")
+                llm_check_response = openai.ChatCompletion.create(
+                    model=MODEL,
+                    messages=[
+                        {"role": "system", "content": "Determine if the following prompt was likely written by a human or AI. Respond only with 'Human' or 'AI'."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=1,
+                    temperature=0
+                )
+                llm_flag = llm_check_response.choices[0].message.content.strip()
+                llm_flags.append(llm_flag)
 
-            # Record data to Excel
+            for idx in range(3):
+                st.write(f"Scenario {idx+1} Score: {scores[idx]}/10 - Likely written by: {llm_flags[idx]}")
+
             new_entry = {
                 'Name': name,
                 'Date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 'Scenario 1 Prompt': prompts[0],
-                'Scenario 1 AI Assistance': ai_assistance[0],
                 'Scenario 1 Score': scores[0],
+                'Scenario 1 LLM Likelihood': llm_flags[0],
                 'Scenario 2 Prompt': prompts[1],
-                'Scenario 2 AI Assistance': ai_assistance[1],
                 'Scenario 2 Score': scores[1],
+                'Scenario 2 LLM Likelihood': llm_flags[1],
                 'Scenario 3 Prompt': prompts[2],
-                'Scenario 3 AI Assistance': ai_assistance[2],
-                'Scenario 3 Score': scores[2]
+                'Scenario 3 Score': scores[2],
+                'Scenario 3 LLM Likelihood': llm_flags[2]
             }
             df_existing = pd.concat([df_existing, pd.DataFrame([new_entry])], ignore_index=True)
             save_to_excel(df_existing)
