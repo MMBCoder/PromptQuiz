@@ -15,7 +15,7 @@ MODEL = "gpt-4o-mini"
 
 # Load Excel file from GitHub
 def load_excel():
-    url = 'https://github.com/yourusername/yourrepo/raw/main/scores.xlsx'
+    url = 'https://github.com/MMBCoder/PromptQuiz/raw/main/scores.xlsx'
     resp = requests.get(url)
     return pd.read_excel(BytesIO(resp.content), engine='openpyxl')
 
