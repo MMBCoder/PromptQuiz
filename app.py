@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import openai
+import os
 from datetime import datetime
 import requests
 from io import BytesIO
@@ -9,7 +10,7 @@ from io import BytesIO
 st.title("Prompt Writing Quiz")
 
 # OpenAI API setup
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+openai.api_key = os.getenv("OPENAI_API_KEY")
 MODEL = "gpt-4o-mini"
 
 # Load Excel file from GitHub
