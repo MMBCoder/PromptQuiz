@@ -59,10 +59,20 @@ LLM Likelihood: {entry['Scenario 3 LLM Likelihood']}
     except Exception:
         pass  # Silently fail
 
-# Collect user name
-name = st.text_input("Enter your full name:")
+# Step 1: collect user name and wait for Next
+if 'step' not in st.session_state:
+    st.session_state.step = 1
 
-if name:
+if st.session_state.step == 1:
+    name = st.text_input("Enter your full name:", key="name_input")
+    if st.button("Next"):
+        if name:
+            st.session_state.name = name
+            st.session_state.step = 2
+
+# Step 2: show scenarios and prompt inputs
+if st.session_state.step == 2:
+    name = st.session_state.name
     prompts = []
     scores = []
     llm_flags = []
@@ -100,7 +110,7 @@ if name:
             llm_flags.append(llm_flag)
 
         for idx in range(3):
-            st.write(f"Scenario {idx+1} Score: {scores[idx]}/10 - Likely written by: {llm_flags[idx]}")
+            st.write(f"Scenario {idx+1} Score: {scores[idx]}/10")
 
         new_entry = {
             'Name': name,
