@@ -16,8 +16,20 @@ MODEL = "gpt-4o-mini"
 # Load Excel file from GitHub
 def load_excel():
     url = 'https://github.com/MMBCoder/PromptQuiz/raw/main/scores.xlsx'
-    resp = requests.get(url)
-    return pd.read_excel(BytesIO(resp.content), engine='openpyxl')
+    try:
+        resp = requests.get(url)
+        df = pd.read_excel(BytesIO(resp.content), engine='openpyxl')
+        if 'Name' not in df.columns:
+            raise ValueError("Missing 'Name' column")
+        return df
+    except Exception as e:
+        st.warning("Starting fresh: Excel file missing or invalid.")
+        return pd.DataFrame(columns=[
+            'Name', 'Date',
+            'Scenario 1 Prompt', 'Scenario 1 AI Assistance', 'Scenario 1 Score',
+            'Scenario 2 Prompt', 'Scenario 2 AI Assistance', 'Scenario 2 Score',
+            'Scenario 3 Prompt', 'Scenario 3 AI Assistance', 'Scenario 3 Score'
+        ])
 
 # Save Excel file locally (manual upload needed for GitHub)
 def save_to_excel(df):
