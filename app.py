@@ -17,7 +17,7 @@ MODEL = "gpt-4o-mini"
 def load_excel():
     url = 'https://github.com/yourusername/yourrepo/raw/main/scores.xlsx'
     resp = requests.get(url)
-    return pd.read_excel(BytesIO(resp.content))
+    return pd.read_excel(BytesIO(resp.content), engine='openpyxl')
 
 # Save Excel file locally (manual upload needed for GitHub)
 def save_to_excel(df):
