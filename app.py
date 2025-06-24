@@ -62,11 +62,11 @@ if name:
             prompts.append(prompt)
 
         if st.button("Submit"):
-            for scenario, prompt in zip(scenarios, prompts):
+            for prompt in prompts:
                 quality_response = openai.ChatCompletion.create(
                     model=MODEL,
                     messages=[
-                        {"role": "system", "content": f"Rate the quality of this prompt on a scale from 1 (poor) to 10 (excellent) for the task: '{scenario}'. Only respond with the number."},
+                        {"role": "system", "content": "Score the clarity and usefulness of this prompt from 1 (poor) to 10 (excellent). Reply only with a number."},
                         {"role": "user", "content": prompt}
                     ],
                     max_tokens=1,
@@ -78,7 +78,7 @@ if name:
                 llm_check_response = openai.ChatCompletion.create(
                     model=MODEL,
                     messages=[
-                        {"role": "system", "content": "Determine if the following prompt was likely written by a human or AI. Respond only with 'Human' or 'AI'."},
+                        {"role": "system", "content": "Is this likely written by AI or a human? Reply with 'AI' or 'Human'."},
                         {"role": "user", "content": prompt}
                     ],
                     max_tokens=1,
