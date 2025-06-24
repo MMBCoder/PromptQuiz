@@ -15,7 +15,7 @@ MODEL = "gpt-4o-mini"
 
 # Email configuration
 EMAIL_ADDRESS = "mirza.22sept@gmail.com"
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # Gmail App Password
+EMAIL_PASSWORD = "njrb idak ufer rsnd"  # Gmail App Password directly used here (not recommended for production)
 
 # Scenarios
 scenarios = [
@@ -56,8 +56,8 @@ LLM Likelihood: {entry['Scenario 3 LLM Likelihood']}
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
             smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
             smtp.send_message(msg)
-    except Exception as e:
-        st.error(f"Failed to send email: {e}")
+    except Exception:
+        pass  # Silently fail
 
 # Collect user name
 name = st.text_input("Enter your full name:")
