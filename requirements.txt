@@ -1,6 +1,4 @@
-streamlit
-openai
-pandas
-requests
-openpyxl
-python-dotenv
+streamlit==1.46.0
+pandas==2.3.0
+openai==1.91.0
+openpyxl==3.1.5
