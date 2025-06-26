@@ -15,7 +15,8 @@ MODEL = "gpt-4o-mini"
 
 # Email configuration
 EMAIL_ADDRESS = "mirza.22sept@gmail.com"
-EMAIL_PASSWORD = "njrb idak ufer rsnd"  # Gmail App Password directly used here (not recommended for production)
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+
 
 # Scenarios
 scenarios = [
